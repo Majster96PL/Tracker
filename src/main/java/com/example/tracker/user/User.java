@@ -23,7 +23,7 @@ import java.util.Set;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ID;
+    private Long id;
     @NotBlank(message = "Required username!")
     @Size(max = 20)
     private String username;
