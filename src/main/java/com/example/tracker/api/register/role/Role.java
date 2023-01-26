@@ -1,5 +1,6 @@
-package com.example.tracker.user;
+package com.example.tracker.api.register.role;
 
+import com.example.tracker.api.register.user.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
