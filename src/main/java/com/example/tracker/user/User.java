@@ -26,5 +26,22 @@ public class User {
     private String email;
     private String login;
     private String password;
-    private boolean isExpired;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+    private boolean lockedUser;
+    private boolean enabledUser;
+
+    public User(String firstname,
+                String lastname,
+                String email,
+                String login,
+                String password,
+                UserRole role) {
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.email = email;
+        this.login = login;
+        this.password = password;
+        this.role = role;
+    }
 }
