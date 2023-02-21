@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
-public interface VerificationTokenRepository extends JpaRepository<Long, VerificationToken> {
+public interface VerificationTokenRepository extends JpaRepository<VerificationToken, Long> {
     Optional<VerificationToken> findByToken(String token);
 
     @Transactional
