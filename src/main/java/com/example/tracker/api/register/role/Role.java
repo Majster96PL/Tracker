@@ -2,12 +2,10 @@ package com.example.tracker.api.register.role;
 
 import com.example.tracker.api.register.user.UserRole;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "roles")
@@ -18,4 +16,5 @@ public class Role {
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private UserRole role;
+
 }

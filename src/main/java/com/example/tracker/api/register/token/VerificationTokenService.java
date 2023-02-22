@@ -19,7 +19,8 @@ public class VerificationTokenService {
         return verificationTokenRepository.findByToken(token);
     }
 
-    public int setConfirmedToken(String token){
+   /* public int setConfirmedToken(String token){
         return verificationTokenRepository.updateToken(token, LocalDateTime.now());
-    }
+    }*/
+
 }

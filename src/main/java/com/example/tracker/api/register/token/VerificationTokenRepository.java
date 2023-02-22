@@ -13,8 +13,8 @@ import java.util.Optional;
 public interface VerificationTokenRepository extends JpaRepository<VerificationToken, Long> {
     Optional<VerificationToken> findByToken(String token);
 
-    @Transactional
+  /*  @Transactional
     @Modifying
     @Query("UPDATE Token t SET t.confirmed = ?2 WHERE t.token = ?1")
-    int updateToken(String token, LocalDateTime confirmed);
+    int updateToken(String token, LocalDateTime confirmed); */
 }
