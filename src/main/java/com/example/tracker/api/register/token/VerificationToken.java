@@ -25,12 +25,10 @@ public class VerificationToken {
     public VerificationToken(String token,
                              User user,
                              LocalDateTime created,
-                             LocalDateTime confirmed,
                              LocalDateTime expired) {
         this.token = token;
         this.user = user;
         this.created = created;
-        this.confirmed = confirmed;
         this.expired = expired;
     }
 }
