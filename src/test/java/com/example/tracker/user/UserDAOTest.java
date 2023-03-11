@@ -1,69 +1,85 @@
 package com.example.tracker.user;
 
+import com.example.tracker.api.register.role.Role;
 import com.example.tracker.api.register.role.RoleRepository;
 import com.example.tracker.api.register.user.User;
 import com.example.tracker.api.register.user.UserRepository;
 import com.example.tracker.api.register.user.UserRole;
-import com.example.tracker.web.PasswordEncoder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
-@Transactional
-@TestPropertySource(locations = "classpath:application.properties")
-
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@DataJpaTest
 public class UserDAOTest {
 
     @Autowired
-    private UserRepository userRepository;
+    private TestEntityManager testEntityManager;
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
+    private UserRepository userRepository;
     @Autowired
     private RoleRepository roleRepository;
 
-    @Autowired
-    private UserRole userRole;
+    private Role roleAdmin, roleUser;
 
     @Before
     public void setUp(){
-        User user = new User();
-        user.setUsername("testUser");
-        user.setPassword(passwordEncoder.bCryptPasswordEncoder().encode("testPassword"));
-        user.setEmail("testUser@testUser.com");
-        user.setRoles(new HashSet<>(Arrays.asList(UserRole.ADMIN, UserRole.USER)));
+        roleAdmin = testEntityManager.persist(new Role(UserRole.ADMIN));
+        roleUser = testEntityManager.persist(new Role(UserRole.USER));
 
-        userRepository.save(user);
+        roleRepository.save(roleAdmin);
+        roleRepository.save(roleUser);
+    }
+
+    private Set<Role> createRolesWithoutAdmin(){
+        return UserRole.stream()
+                .map(role -> testEntityManager.persist(new Role(role)))
+                .filter(role -> role.getRole() != UserRole.ADMIN)
+                .collect(Collectors.toSet());
     }
 
     @Test
-    public void testAddUser(){
+    public void whenSaveAndRetrieveUser_thenOK(){
+        Set<Role> roles = createRolesWithoutAdmin();
+
         User testUser = new User();
-        testUser.setUsername("Test");
-        testUser.setPassword(passwordEncoder.bCryptPasswordEncoder().encode("test"));
-        testUser.setRoles(new HashSet<>(Arrays.asList(roleRepository.findByName(UserRole.USER))));
+        testUser.setUsername("testUser");
+        testUser.setEmail("test@test.com");
+        testUser.setPassword("test");
+        testUser.setRoles(roles);
+        testUser.setLocked(false);
+        testUser.setEnabled(true);
+
         userRepository.save(testUser);
+        Optional<User> foundUserInRepository = userRepository.findByUsername("testUser");
+        assertTrue(foundUserInRepository.isPresent());
 
-        assertThat(testUser.getId()).isNotNull();
-        assertThat(testUser.getUsername()).isEqualTo(testUser.getUsername());
-        assertThat(testUser.getPassword()).isEqualTo(testUser.getPassword());
-
-        User retrievedUser = userRepository.findById(testUser.getId()).orElse(null);
-        assertThat(retrievedUser).isNotNull();
-        assertThat(retrievedUser.getUsername()).isEqualTo(testUser.getUsername());
-        assertThat(retrievedUser.getEmail()).isEqualTo(testUser.getEmail());
+        User foundUser = foundUserInRepository.get();
+        assertEquals(testUser.getUsername(), foundUser.getUsername());
+        assertEquals(testUser.getEmail(), foundUser.getEmail());
+        assertEquals(testUser.getPassword(), foundUser.getPassword());
+        assertEquals(testUser.getRoles(), foundUser.getRoles());
+        assertEquals(testUser.isLocked(), foundUser.isLocked());
+        assertEquals(testUser.isEnabled(), foundUser.isEnabled());
     }
 
+    @After
+    public void tearDown(){
+        testEntityManager.remove(roleAdmin);
+        testEntityManager.remove(roleUser);
+    }
 }
